@@ -61,4 +61,15 @@ Plugin.create(:stream_command_update_profile) do
                            replyto: msg.id)
 
   end
+
+  # -----------------------------------
+
+  command_rate_limit :get_base_name, 3, 15
+
+  on_command_get_base_name do |msg, *args|
+    service = Service.find { |s| msg.receive_to? s.user_obj }
+
+    service.twitter.update(message: "@#{msg.user.idname} 現在の基本名は[#{@base_name}]です。",
+                           replyto: msg.id)
+  end
 end
