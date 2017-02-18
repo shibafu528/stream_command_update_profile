@@ -2,8 +2,6 @@
 
 Plugin.create(:stream_command_update_profile) do
 
-  @base_name = ''
-
   # -----------------------------------
 
   command_private :update_name
@@ -35,14 +33,15 @@ Plugin.create(:stream_command_update_profile) do
   
   on_command_update_suffix do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
-  
+    base_name = UserConfig[:sc_update_profile_base_name]
+
     if args[0] == 'clear'
-      (service.twitter/'account/update_profile').json(name: @base_name).next do
+      (service.twitter/'account/update_profile').json(name: base_name).next do
         service.twitter.update(message: "@#{msg.user.idname} 接尾辞を消去します",
                                replyto: msg.id)
       end
     else
-      (service.twitter/'account/update_profile').json(name: @base_name + args[0]).next do
+      (service.twitter/'account/update_profile').json(name: base_name + args[0]).next do
         service.twitter.update(message: "@#{msg.user.idname} 接尾辞を\"#{args[0]}\"に変更します",
                                replyto: msg.id)
       end
@@ -56,8 +55,8 @@ Plugin.create(:stream_command_update_profile) do
   on_command_set_base_name do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
-    @base_name = args[0]
-    service.twitter.update(message: "@#{msg.user.idname} 基本名を[#{@base_name}]に設定しました",
+    UserConfig[:sc_update_profile_base_name] = args[0]
+    service.twitter.update(message: "@#{msg.user.idname} 基本名を[#{args[0]}]に設定しました",
                            replyto: msg.id)
 
   end
@@ -69,7 +68,8 @@ Plugin.create(:stream_command_update_profile) do
   on_command_get_base_name do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
-    service.twitter.update(message: "@#{msg.user.idname} 現在の基本名は[#{@base_name}]です。",
+    base_name = UserConfig[:sc_update_profile_base_name]
+    service.twitter.update(message: "@#{msg.user.idname} 現在の基本名は[#{base_name}]です。",
                            replyto: msg.id)
   end
 end
