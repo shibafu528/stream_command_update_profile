@@ -4,9 +4,8 @@ Plugin.create(:stream_command_update_profile) do
 
   # -----------------------------------
 
-  command_private :update_name
-
-  on_command_update_name do |msg, *args|
+  stream_command(:update_name,
+                 private: true) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
     (service.twitter/'account/update_profile').json(name: args[0]).next do
       service.twitter.update(message: "@#{msg.user.idname} 名前を[#{args[0]}]に設定しました。",
@@ -16,10 +15,11 @@ Plugin.create(:stream_command_update_profile) do
 
   # -----------------------------------
 
-  command_rate_limit :update_location, 3, 15
   command_alias :update_location, :update_locate
 
-  on_command_update_location do |msg, *args|
+  stream_command(:update_location,
+                 rate_limit: 3,
+                 rate_limit_reset: 15) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
     (service.twitter/'account/update_profile').json(location: args[0]).next do
       service.twitter.update(message: ".@#{msg.user.idname}さんの指示でプロフィールのロケーション情報を\"#{args[0]}\"に変更しました (#{Time.now})",
@@ -29,9 +29,9 @@ Plugin.create(:stream_command_update_profile) do
 
   # -----------------------------------
 
-  command_rate_limit :update_suffix, 3, 15
-  
-  on_command_update_suffix do |msg, *args|
+  stream_command(:update_suffix,
+                  rate_limit: 3,
+                  rate_limit_reset: 15) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
     base_name = UserConfig[:sc_update_profile_base_name]
 
@@ -50,9 +50,8 @@ Plugin.create(:stream_command_update_profile) do
 
   # -----------------------------------
 
-  command_private :set_base_name
-
-  on_command_set_base_name do |msg, *args|
+  stream_command(:set_base_name,
+                 private: true) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
     UserConfig[:sc_update_profile_base_name] = args[0]
@@ -63,9 +62,9 @@ Plugin.create(:stream_command_update_profile) do
 
   # -----------------------------------
 
-  command_rate_limit :get_base_name, 3, 15
-
-  on_command_get_base_name do |msg, *args|
+  stream_command(:get_base_name,
+                 rate_limit: 3,
+                 rate_limit_reset: 15) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
     base_name = UserConfig[:sc_update_profile_base_name]
