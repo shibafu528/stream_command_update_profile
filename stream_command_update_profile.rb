@@ -50,6 +50,20 @@ Plugin.create(:stream_command_update_profile) do
 
   # -----------------------------------
 
+  stream_command(:reset_base_name,
+                 private: true) do |msg, *args|
+    service = Service.find { |s| msg.receive_to? s.user_obj }
+
+    UserConfig[:sc_update_profile_base_name] = args[0]
+    (service.twitter/'account/update_profile').json(name: args[0]).next do
+      service.twitter.update(message: "@#{msg.user.idname} 基本名を[#{args[0]}]に設定しました",
+                             replyto: msg.id)
+    end
+
+  end
+
+  # -----------------------------------
+
   stream_command(:set_base_name,
                  private: true) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
