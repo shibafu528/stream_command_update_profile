@@ -37,15 +37,29 @@ Plugin.create(:stream_command_update_profile) do
 
     if args[0] == 'clear'
       (service.twitter/'account/update_profile').json(name: base_name).next do
+        UserConfig[:sc_update_profile_suffix] = ''
         service.twitter.update(message: "@#{msg.user.idname} 接尾辞を消去します",
                                replyto: msg.id)
       end
     else
       (service.twitter/'account/update_profile').json(name: base_name + args[0]).next do
+        UserConfig[:sc_update_profile_suffix] = args[0]
         service.twitter.update(message: "@#{msg.user.idname} 接尾辞を\"#{args[0]}\"に変更します",
                                replyto: msg.id)
       end
     end
+  end
+
+  # -----------------------------------
+
+  stream_command(:get_suffix,
+                 rate_limit: 3,
+                 rate_limit_reset: 15) do |msg, *args|
+    service = Service.find { |s| msg.receive_to? s.user_obj }
+
+    suffix = UserConfig[:sc_update_profile_suffix]
+    service.twitter.update(message: "@#{msg.user.idname} 現在の接尾辞は[#{suffix}]です。",
+                           replyto: msg.id)
   end
 
   # -----------------------------------
