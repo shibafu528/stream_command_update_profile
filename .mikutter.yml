@@ -1,7 +1,7 @@
 ---
 slug: :stream_command_update_profile
 depends:
-  mikutter: 3.4.8
+  mikutter: 3.6.0
   plugin: []
 version: '1.0'
 author: 
