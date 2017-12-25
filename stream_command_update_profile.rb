@@ -35,7 +35,7 @@ Plugin.create(:stream_command_update_profile) do
     overflow = (prefix + base_name + suffix) != new_name
 
     # update profile
-    (service.twitter/'account/update_profile').json(name: new_name).next do
+    update_profile_name(service, name: new_name).next do
       msg = "@" + message.user.idname + " "
       msg += case
              when prefix_changed && suffix_changed
@@ -56,7 +56,7 @@ Plugin.create(:stream_command_update_profile) do
       if overflow
         msg += "文字数オーバーのため、切り詰めています。"
       end
-      service.twitter.update(message: msg, replyto: message.id)
+      compose(service, message, body: msg)
     end
   end
 
@@ -65,9 +65,8 @@ Plugin.create(:stream_command_update_profile) do
   stream_command(:update_name,
                  private: true) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
-    (service.twitter/'account/update_profile').json(name: args[0]).next do
-      service.twitter.update(message: "@#{msg.user.idname} 名前を[#{args[0]}]に設定しました。",
-                             replyto: msg.id)
+    update_profile_name(service, name: args[0]).next do
+      compose(service, msg, body: "@#{msg.user.idname} 名前を[#{args[0]}]に設定しました。")
     end
   end
 
@@ -79,9 +78,8 @@ Plugin.create(:stream_command_update_profile) do
                  rate_limit: 3,
                  rate_limit_reset: 15) do |msg, *args|
     service = Service.find { |s| msg.receive_to? s.user_obj }
-    (service.twitter/'account/update_profile').json(location: args[0]).next do
-      service.twitter.update(message: ".@#{msg.user.idname}さんの指示でプロフィールのロケーション情報を\"#{args[0]}\"に変更しました (#{Time.now})",
-                             replyto: msg.id)
+    update_profile_location(service, location: args[0]).next do
+      compose(service, msg, body: ".@#{msg.user.idname}さんの指示でプロフィールのロケーション情報を\"#{args[0]}\"に変更しました (#{Time.now})")
     end
   end
 
@@ -121,8 +119,7 @@ Plugin.create(:stream_command_update_profile) do
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
     prefix = UserConfig[:sc_update_profile_prefix]
-    service.twitter.update(message: "@#{msg.user.idname} 現在の接頭辞は[#{prefix}]です。",
-                           replyto: msg.id)
+    compose(service, msg, body: "@#{msg.user.idname} 現在の接頭辞は[#{prefix}]です。")
   end
 
   # -----------------------------------
@@ -133,8 +130,7 @@ Plugin.create(:stream_command_update_profile) do
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
     suffix = UserConfig[:sc_update_profile_suffix]
-    service.twitter.update(message: "@#{msg.user.idname} 現在の接尾辞は[#{suffix}]です。",
-                           replyto: msg.id)
+    compose(service, msg, body: "@#{msg.user.idname} 現在の接尾辞は[#{suffix}]です。")
   end
 
   # -----------------------------------
@@ -144,11 +140,9 @@ Plugin.create(:stream_command_update_profile) do
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
     UserConfig[:sc_update_profile_base_name] = args[0]
-    (service.twitter/'account/update_profile').json(name: args[0]).next do
-      service.twitter.update(message: "@#{msg.user.idname} 基本名を[#{args[0]}]に設定しました",
-                             replyto: msg.id)
+    update_profile_name(service, name: args[0]).next do
+      compose(service, msg, body: "@#{msg.user.idname} 基本名を[#{args[0]}]に設定しました")
     end
-
   end
 
   # -----------------------------------
@@ -158,9 +152,7 @@ Plugin.create(:stream_command_update_profile) do
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
     UserConfig[:sc_update_profile_base_name] = args[0]
-    service.twitter.update(message: "@#{msg.user.idname} 基本名を[#{args[0]}]に設定しました",
-                           replyto: msg.id)
-
+    compose(service, msg, body: "@#{msg.user.idname} 基本名を[#{args[0]}]に設定しました")
   end
 
   # -----------------------------------
@@ -171,7 +163,6 @@ Plugin.create(:stream_command_update_profile) do
     service = Service.find { |s| msg.receive_to? s.user_obj }
 
     base_name = UserConfig[:sc_update_profile_base_name]
-    service.twitter.update(message: "@#{msg.user.idname} 現在の基本名は[#{base_name}]です。",
-                           replyto: msg.id)
+    compose(service, msg, body: "@#{msg.user.idname} 現在の基本名は[#{base_name}]です。")
   end
 end
