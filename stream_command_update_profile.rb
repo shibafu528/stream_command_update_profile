@@ -64,7 +64,7 @@ Plugin.create(:stream_command_update_profile) do
 
   stream_command(:update_name,
                  private: true) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
     update_profile_name(service, name: args[0]).next do
       compose(service, msg, body: "@#{msg.user.idname} 名前を[#{args[0]}]に設定しました。")
     end
@@ -77,7 +77,7 @@ Plugin.create(:stream_command_update_profile) do
   stream_command(:update_location,
                  rate_limit: 3,
                  rate_limit_reset: 15) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
     update_profile_location(service, location: args[0]).next do
       compose(service, msg, body: ".@#{msg.user.idname}さんの指示でプロフィールのロケーション情報を\"#{args[0]}\"に変更しました (#{Time.now})")
     end
@@ -88,7 +88,7 @@ Plugin.create(:stream_command_update_profile) do
   stream_command(:update_prefix,
                   rate_limit: 3,
                   rate_limit_reset: 15) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
     
     if args[0] == 'clear'
       update_name(service, msg, prefix: '')
@@ -102,7 +102,7 @@ Plugin.create(:stream_command_update_profile) do
   stream_command(:update_suffix,
                   rate_limit: 3,
                   rate_limit_reset: 15) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
 
     if args[0] == 'clear'
       update_name(service, msg, suffix: '')
@@ -116,7 +116,7 @@ Plugin.create(:stream_command_update_profile) do
   stream_command(:get_prefix,
                  rate_limit: 3,
                  rate_limit_reset: 15) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
 
     prefix = UserConfig[:sc_update_profile_prefix]
     compose(service, msg, body: "@#{msg.user.idname} 現在の接頭辞は[#{prefix}]です。")
@@ -127,7 +127,7 @@ Plugin.create(:stream_command_update_profile) do
   stream_command(:get_suffix,
                  rate_limit: 3,
                  rate_limit_reset: 15) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
 
     suffix = UserConfig[:sc_update_profile_suffix]
     compose(service, msg, body: "@#{msg.user.idname} 現在の接尾辞は[#{suffix}]です。")
@@ -137,7 +137,7 @@ Plugin.create(:stream_command_update_profile) do
 
   stream_command(:reset_base_name,
                  private: true) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
 
     UserConfig[:sc_update_profile_base_name] = args[0]
     update_profile_name(service, name: args[0]).next do
@@ -149,7 +149,7 @@ Plugin.create(:stream_command_update_profile) do
 
   stream_command(:set_base_name,
                  private: true) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
 
     UserConfig[:sc_update_profile_base_name] = args[0]
     compose(service, msg, body: "@#{msg.user.idname} 基本名を[#{args[0]}]に設定しました")
@@ -160,7 +160,7 @@ Plugin.create(:stream_command_update_profile) do
   stream_command(:get_base_name,
                  rate_limit: 3,
                  rate_limit_reset: 15) do |msg, *args|
-    service = Service.find { |s| msg.receive_to? s.user_obj }
+    service = Plugin.filtering(:worlds, [])[0].find(&msg.method(:to_me?))
 
     base_name = UserConfig[:sc_update_profile_base_name]
     compose(service, msg, body: "@#{msg.user.idname} 現在の基本名は[#{base_name}]です。")
