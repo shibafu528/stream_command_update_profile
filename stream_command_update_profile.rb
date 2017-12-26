@@ -72,7 +72,7 @@ Plugin.create(:stream_command_update_profile) do
 
   # -----------------------------------
 
-  command_alias :update_location, :update_locate
+  stream_command_alias :update_location, :update_locate
 
   stream_command(:update_location,
                  rate_limit: 3,
