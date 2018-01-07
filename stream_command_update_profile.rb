@@ -2,22 +2,6 @@
 
 Plugin.create(:stream_command_update_profile) do
 
-  defspell(:update_profile_name, :twitter) do |twitter, name:|
-    (twitter/'account/update_profile').json(name: name)
-  end
-
-  defspell(:update_profile_location, :twitter) do |twitter, location:|
-    (twitter/'account/update_profile').json(location: location)
-  end
-
-  defspell(:update_profile_url, :twitter) do |twitter, url:|
-    (twitter/'account/update_profile').json(url: url)
-  end
-
-  defspell(:update_profile_biography, :twitter) do |twitter, biography:|
-    (twitter/'account/update_profile').json(description: biography)
-  end
-
   def update_name(service, message,
                   prefix: UserConfig[:sc_update_profile_prefix],
                   suffix: UserConfig[:sc_update_profile_suffix])
